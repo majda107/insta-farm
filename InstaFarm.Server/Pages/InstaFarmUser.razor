@@ -1,0 +1,85 @@
+@using InstaFarm.Server.Services
+@inject InstaFarmService ifs
+@inject NavigationManager nav
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">@User.Username</h4>
+        <br/>
+
+        @if (this.followers < 0)
+        {
+            <span>Followers not fetched</span>
+        }
+        else
+        {
+            <span>@this.followers Followers</span>
+        }
+
+
+
+
+
+
+    </div>
+    <div class="card-footer flex-row">
+
+        @if (!this.User.LoggedIn)
+        {
+            <button @onclick="this.Login" disabled="@this.loggingIn" class="btn btn-success">Login</button>
+        }
+        else
+        {
+            <button @onclick="this.Logout" disabled="@this.loggingIn" class="btn btn-danger">Log out</button>
+        }
+
+        <button @onclick="Select" class="btn btn-primary">Detail</button>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public Core.Models.InstaFarmUser User { get; set; }
+
+    private int followers = -1;
+    private bool loggingIn;
+
+    protected override void OnInitialized()
+    {
+        this.User.OnLogin += async (s, e) =>
+        {
+            if (s.LoggedIn) await this.FetchFollowers();
+            else this.followers = -1;
+
+            await this.InvokeAsync(() => this.StateHasChanged());
+        };
+        base.OnInitialized();
+    }
+
+    private async Task FetchFollowers()
+    {
+        this.followers = await this.User.FetchFollowersCountAsync();
+    }
+
+    private async Task Login()
+    {
+        this.loggingIn = true;
+        await this.User.LoginAsync();
+        this.loggingIn = false;
+    }
+
+    private void Select()
+    {
+        this.ifs.Selected = this.User;
+        this.nav.NavigateTo("/detail");
+    }
+
+    private async Task Logout()
+    {
+        this.loggingIn = true;
+        await this.User.LogoutAsync();
+        this.loggingIn = false;
+    }
+
+}

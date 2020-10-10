@@ -1,0 +1,26 @@
+@page "/detail"
+
+@using InstaFarm.Server.Services
+@using InstaFarm.Core.Modules
+@inject InstaFarmService ifs
+
+@if (this.ifs.Selected == null)
+{
+    <em>No user selected..</em>
+}
+else
+{
+    <h1>@ifs.Selected.Username</h1>
+    <h2>Schelduled</h2>
+    <UserTimer Timer="@ifs.Selected.Timer"></UserTimer>
+    <hr/>
+    <h2>Modules</h2>
+    @foreach (var module in ifs.Selected.Modules)
+    {
+        @if (module is InstaFarm.Core.Modules.RepostModule)
+        {
+            <span>... repost module ...</span>
+            <RepostView Module="@(module as RepostModule)"></RepostView>
+        }
+    }
+}

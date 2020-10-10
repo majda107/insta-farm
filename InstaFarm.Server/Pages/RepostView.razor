@@ -1,0 +1,29 @@
+@using InstaFarm.Core.Modules
+<h3>RepostModule</h3>
+
+<ModuleLogger Logger="@Module.Logger"></ModuleLogger>
+
+<form>
+    <input type="checkbox" @onchange="HookTimer"/>
+    <input @bind="Module.Caption" placeholder="Caption"/>
+    <input @bind="Module.RepostFrom" placeholder="Repost from"/>
+    <button type="button" @onclick="Module.TryExecute">Execute</button>
+</form>
+
+@code {
+
+    [Parameter]
+    public RepostModule Module { get; set; }
+
+    public void HookTimer(ChangeEventArgs e)
+    {
+        if (e.Value == null) return;
+        var c = (bool) e.Value;
+        Console.WriteLine(c);
+
+        var timer = this.Module.User.Timer;
+        if (c && !timer.Modules.Contains(this.Module)) timer.Modules.Add(this.Module);
+        else if (!c && timer.Modules.Contains(this.Module)) timer.Modules.Remove(this.Module);
+    }
+
+}

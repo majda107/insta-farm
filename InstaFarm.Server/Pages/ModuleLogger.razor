@@ -1,0 +1,21 @@
+<div>
+    <span>@this.message</span>
+</div>
+
+@code {
+
+    [Parameter]
+    public Core.Modules.Meta.ModuleLogger Logger { get; set; }
+
+    private string message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.Logger.OnValue += async (o, e) =>
+        {
+            this.message = e;
+            await this.InvokeAsync(this.StateHasChanged);
+        };
+    }
+
+}

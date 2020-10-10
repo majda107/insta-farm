@@ -1,0 +1,45 @@
+@page "/farm"
+@using InstaFarm.Server.Services
+@using System.Runtime.CompilerServices
+@using System.Reflection.Metadata
+@using InstaFarm.Core.Modules
+@inject InstaFarmService ifs;
+
+<h3>InstaFarmUsers</h3>
+
+<hr/>
+
+@if (ifs.Farm != null)
+{
+    <ul class="flex-column" style="list-style-type: none; margin: 0">
+        @foreach (var user in ifs.Farm.Users)
+        {
+            <li style="margin: 18px 0">
+                <InstaFarmUser User="@user"></InstaFarmUser>
+            </li>
+        }
+    </ul>
+}
+
+<hr/>
+
+<form>
+    <input @bind="Username">
+    <input @bind="Password" type="password">
+    <button type="button" @onclick="this.AddUser">Add</button>
+</form>
+
+
+@code {
+    public string Username;
+    public string Password;
+
+    public void AddUser()
+    {
+        var user = this.ifs.Farm.Add(this.Username, this.Password);
+        user.AddModule(new RepostModule(user, "stevenn_6", "Caption this"));
+
+        this.StateHasChanged();
+    }
+
+}

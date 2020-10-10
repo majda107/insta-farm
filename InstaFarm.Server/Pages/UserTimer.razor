@@ -1,0 +1,33 @@
+@using InstaFarm.Core.Chrono
+
+<div class="card">
+    <div class="card-header">
+        <h3>Timer (@Timer.Interval)s</h3>
+    </div>
+    <div class="card-body">
+        <span class="card-text">@(Timer.Left)s</span>
+        <ul class="list-group">
+            @foreach (var m in Timer.Modules)
+            {
+                <li class="list-group-item">@m.GetType().Name</li>
+            }
+        </ul>
+    </div>
+    <div class="card-footer flex-column">
+        <button class="btn btn-primary" @onclick="Timer.Start">Start</button>
+        <button class="btn btn-warning" @onclick="Timer.Stop">Stop</button>
+        <button class="btn btn-danger" @onclick="Timer.Reset">Reset</button>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public InstaFarmTimer Timer { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ChronoThread.OnTick += (o, e) => { this.InvokeAsync(this.StateHasChanged); };
+    }
+
+}
