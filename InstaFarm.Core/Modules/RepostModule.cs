@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using InstaFarm.Core.Extension;
 using InstaFarm.Core.Helpers;
 using InstaFarm.Core.Models;
 using InstagramApiSharp;
@@ -11,20 +13,28 @@ namespace InstaFarm.Core.Modules
 {
     public class RepostModule : ModuleBase
     {
-        public string RepostFrom { get; set; }
-        public string Caption { get; set; }
+        public List<string> RepostFrom { get; set; }
+        public List<string> Caption { get; set; }
 
-        public RepostModule(InstaFarmUser user, string repostFrom, string caption) : base(user)
+        public RepostModule(InstaFarmUser user) : base(user)
         {
-            this.RepostFrom = repostFrom;
-            this.Caption = caption;
+            this.RepostFrom = new List<string>();
+            this.Caption = new List<string>();
         }
 
         public override async Task Execute()
         {
             this.Logger.Log("Executing repost module...");
 
-            var posts = await this.User.Api.UserProcessor.GetUserMediaAsync(this.RepostFrom,
+            if (this.RepostFrom.Count <= 0 || this.Caption.Count <= 0)
+                throw new Exception("Not enough captions / sources");
+
+            var cap = this.Caption.ChooseRandom();
+            var source = this.RepostFrom.ChooseRandom();
+
+            this.Logger.Log($"Reposting caption {cap} from {source}...");
+
+            var posts = await this.User.Api.UserProcessor.GetUserMediaAsync(source,
                 PaginationParameters.MaxPagesToLoad(1));
             if (!posts.Succeeded || posts.Value.Count <= 0) throw new Exception("Couldn't fetch user media!");
 
@@ -56,7 +66,7 @@ namespace InstaFarm.Core.Modules
 
                 await this.User.Api.MediaProcessor.UploadVideoAsync((p) => this.Logger.Log(p.UploadState.ToString()),
                     new InstaVideoUpload(new InstaVideo(filename, 0, 0), new InstaImage(filenameThumb, 0, 0)),
-                    this.Caption);
+                    cap);
 
                 this.Logger.Log("Uploading video done...");
                 // this.Logger.Log("Re-posting videos not supported yet!");
@@ -71,7 +81,7 @@ namespace InstaFarm.Core.Modules
                 this.Logger.Log("Image downloaded!");
 
                 await this.User.Api.MediaProcessor.UploadPhotoAsync((p) => this.Logger.Log(p.UploadState.ToString()),
-                    new InstaImageUpload(filename), this.Caption);
+                    new InstaImageUpload(filename), cap);
 
                 this.Logger.Log("Uploading image done...");
             }

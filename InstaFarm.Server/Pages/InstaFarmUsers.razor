@@ -26,7 +26,7 @@
 <form>
     <input @bind="Username">
     <input @bind="Password" type="password">
-    <button type="button" @onclick="this.AddUser">Add</button>
+    <button type="button" @onclick="this.AddUser" class="btn btn-primary">Add</button>
 </form>
 
 
@@ -37,7 +37,7 @@
     public void AddUser()
     {
         var user = this.ifs.Farm.Add(this.Username, this.Password);
-        user.AddModule(new RepostModule(user, "stevenn_6", "Caption this"));
+        user.AddModule(new RepostModule(user));
 
         this.StateHasChanged();
     }

@@ -5,9 +5,15 @@
 
 <form>
     <input type="checkbox" @onchange="HookTimer"/>
-    <input @bind="Module.Caption" placeholder="Caption"/>
-    <input @bind="Module.RepostFrom" placeholder="Repost from"/>
-    <button type="button" @onclick="Module.TryExecute">Execute</button>
+    @* <input @bind="Module.Caption" placeholder="Caption"/> *@
+    @* <input @bind="Module.RepostFrom" placeholder="Repost from"/> *@
+    <span>Sources</span>
+    <ComboList List="@Module.RepostFrom"></ComboList>
+
+    <span>Captions</span>
+    <ComboList List="@Module.Caption"></ComboList>
+
+    <button type="button" @onclick="Module.TryExecute" class="btn btn-primary">Execute</button>
 </form>
 
 @code {

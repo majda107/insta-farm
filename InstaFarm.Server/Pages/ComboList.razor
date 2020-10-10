@@ -1,0 +1,38 @@
+<div>
+    <ul class="list-group">
+        @foreach (var item in this.List)
+        {
+            <li class="list-group-item">
+                <span>@item.ToString()</span>
+                <button class="btn btn-danger" @onclick="() => { Remove(item); }" type="button">Remove</button>
+            </li>
+        }
+    </ul>
+    <form>
+        <input type="text" @bind="value" placeholder="Value">
+        <button type="button" class="btn btn-success" @onclick="Add">Add</button>
+    </form>
+</div>
+
+@code {
+
+    [Parameter]
+    public IList<string> List { get; set; }
+
+    private string value;
+
+
+    public void Add()
+    {
+        this.List.Add(value);
+        this.value = "";
+        this.StateHasChanged();
+    }
+
+    public void Remove(string item)
+    {
+        this.List.Remove(item);
+        this.StateHasChanged();
+    }
+
+}
