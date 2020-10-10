@@ -19,8 +19,13 @@ else
     {
         @if (module is InstaFarm.Core.Modules.RepostModule)
         {
-            <span>... repost module ...</span>
             <RepostView Module="@(module as RepostModule)"></RepostView>
         }
+        else if (module is FollowLikersModule)
+        {
+            <FollowLikersView Module="@(module as FollowLikersModule)"></FollowLikersView>
+        }
+
+        <hr/>
     }
 }

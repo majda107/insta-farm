@@ -1,5 +1,8 @@
-<div>
-    <span>@this.message</span>
+<div class="logger" style="max-height: 100px; overflow-y: scroll; display: flex; flex-flow: column">
+    @foreach (var message in messages)
+    {
+        <span>@message</span>
+    }
 </div>
 
 @code {
@@ -7,13 +10,13 @@
     [Parameter]
     public Core.Modules.Meta.ModuleLogger Logger { get; set; }
 
-    private string message;
+    private List<string> messages = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
         this.Logger.OnValue += async (o, e) =>
         {
-            this.message = e;
+            this.messages.Insert(0, e);
             await this.InvokeAsync(this.StateHasChanged);
         };
     }
