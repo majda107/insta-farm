@@ -5,6 +5,7 @@ using InstaFarm.Core.Helpers;
 using InstaFarm.Core.Models;
 using InstagramApiSharp;
 using InstagramApiSharp.Classes.Models;
+using InstagramApiSharp.Helpers;
 
 namespace InstaFarm.Core.Modules
 {
@@ -34,7 +35,33 @@ namespace InstaFarm.Core.Modules
 
             this.Logger.Log("Fetched user media");
 
-            if (media.Value.Images.Count > 0)
+            if (media.Value.Videos.Count > 0)
+            {
+                this.Logger.Log("Fetching video...");
+
+                var video = media.Value.Videos.First();
+                var thumb = media.Value.Images.First();
+
+                var date = DateTime.Now.Ticks;
+                var filename = $"video-{date.ToString()}.mp4";
+                var filenameThumb = $"thumb-{date.ToString()}.jpg";
+
+                await Task.WhenAll(new Task[]
+                {
+                    Downloader.DownloadFile(video.Uri, filename),
+                    Downloader.DownloadFile(thumb.Uri, filenameThumb)
+                });
+
+                this.Logger.Log("Video downloaded...");
+
+                await this.User.Api.MediaProcessor.UploadVideoAsync((p) => this.Logger.Log(p.UploadState.ToString()),
+                    new InstaVideoUpload(new InstaVideo(filename, 0, 0), new InstaImage(filenameThumb, 0, 0)),
+                    this.Caption);
+
+                this.Logger.Log("Uploading video done...");
+                // this.Logger.Log("Re-posting videos not supported yet!");
+            }
+            else if (media.Value.Images.Count > 0)
             {
                 this.Logger.Log("Fetching image...");
 
@@ -43,21 +70,10 @@ namespace InstaFarm.Core.Modules
 
                 this.Logger.Log("Image downloaded!");
 
-                await this.User.Api.MediaProcessor.UploadPhotoAsync((p) => this.Logger.Log(p.Caption),
-                    new InstaImageUpload(filename, 1000, 1000), this.Caption);
+                await this.User.Api.MediaProcessor.UploadPhotoAsync((p) => this.Logger.Log(p.UploadState.ToString()),
+                    new InstaImageUpload(filename), this.Caption);
 
                 this.Logger.Log("Uploading image done...");
-            }
-            else if (media.Value.Videos.Count > 0)
-            {
-                // var filename = $"video-{DateTime.Now.ToString()}.mp4";
-                // await Downloader.DownloadFile(media.Value.Videos.First().Uri, filename);
-                //
-                // await this.User.Api.MediaProcessor.UploadVideoAsync((p) => this.Logger.Log(p.Caption),
-                //     new InstaVideoUpload(new InstaVideo(filename, 1000, 1000), new InstaImage(filename, 1000, 1000)), this.Caption);
-                //
-                // this.Logger.Log("Uploading image done...");
-                this.Logger.Log("Re-posting videos not supported yet!");
             }
             else
             {
