@@ -25,6 +25,10 @@ else
         {
             <FollowLikersView Module="@(module as FollowLikersModule)"></FollowLikersView>
         }
+        else if (module is CommentModule)
+        {
+            <CommentView Module="@(module as CommentModule)"></CommentView>
+        }
 
         <hr/>
     }

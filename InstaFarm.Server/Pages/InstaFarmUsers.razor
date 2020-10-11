@@ -39,6 +39,7 @@
         var user = this.ifs.Farm.Add(this.Username, this.Password);
         user.AddModule(new RepostModule(user));
         user.AddModule(new FollowLikersModule(user, 20));
+        user.AddModule(new CommentModule(user));
 
         this.StateHasChanged();
     }
